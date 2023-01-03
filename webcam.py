@@ -6,19 +6,18 @@ app = Flask(__name__)
 camera = cv2.VideoCapture(0)
 
 
-# Flask index page route
+# Flask routes
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-def resize_frame(frame):
-	scale_percent = 100 # percent of original size
+# Unused
+def resize_frame(frame, percent_to_reduce_to):
+	scale_percent = percent_to_reduce_to # percent of original size
 	width = int(frame.shape[1] * scale_percent / 100)
 	height = int(frame.shape[0] * scale_percent / 100)
 	dim = (width, height)
@@ -27,10 +26,11 @@ def resize_frame(frame):
 	return resized
 
 
+# Generate a buffered frame for /video_feed
 def generate_frames():
 	while True:
 		success, frame = camera.read()
-		frame = resize_frame(frame)
+		#frame = resize_frame(frame, 100)
 		if not success:
 			camera.release()
 			cv2.destroyAllWindows()
@@ -38,16 +38,9 @@ def generate_frames():
 		else:
 			ret, buffer = cv2.imencode('.jpg', frame)
 			frame = buffer.tobytes()
-			yield (b'--frame\r\n'
-				   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-		
-		k = cv2.waitKey(1)
-		if k != -1:
-			# cv2.imwrite('testimage.jpg', frame)
-			camera.release()
-			cv2.destroyAllWindows()
-			break
+			yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
+# Run main
 if __name__ == "__main__":
     app.run(debug=True)

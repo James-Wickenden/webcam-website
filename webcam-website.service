@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=pi
+Group=www-data
+WorkingDirectory=/home/pi/webcam-website
+Environment="PATH=/home/pi/webcam-website/venv/bin"
+ExecStart=/home/pi/webcam-website/venv/bin/uwsgi --ini webcam-website.ini
+
+[Install]
+WantedBy=multi-user.target
+

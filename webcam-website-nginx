@@ -1,0 +1,13 @@
+server {
+    listen 80;
+
+    location / {
+	allow all;
+        include uwsgi_params;
+        uwsgi_pass unix:/home/pi/webcam-webite/uwsgi.sock;
+    }
+
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log error;
+}
+
